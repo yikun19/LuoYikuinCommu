@@ -1,6 +1,7 @@
 package com.Luoyikun.community.service;
 
 import com.Luoyikun.community.dao.UserMapper;
+import com.Luoyikun.community.entity.LoginTicket;
 import com.Luoyikun.community.entity.User;
 import com.Luoyikun.community.util.CommunityConstant;
 import com.Luoyikun.community.util.CommunityUtil;
@@ -104,4 +105,37 @@ public class UserService implements CommunityConstant {
         }
     }
 
+    //登录逻辑
+    public Map<String, Object> login(String userName, String password, int expiredTime) {
+        Map<String, Object> map = new HashMap<>();
+        if(StringUtils.isBlank(userName)) {
+            map.put("userNameMsg", "用户名不能为空");
+            return map;
+        }
+        if(StringUtils.isBlank(password)) {
+            map.put("passwordMsg", "密码不能为空");
+            return map;
+        }
+        User user = userMapper.selectByName(userName);
+        if(user == null) {
+            map.put("userNameMsg", "用户名不存在");
+            return map;
+        }
+        if(user.getStatus() == 0) {
+            map.put("userNameMsg", "该账号未激活");
+            return map;
+        }
+        password = CommunityUtil.md5(password + user.getSalt());
+        if(!password.equals(user.getPassword())) {
+            map.put("passwordMsg", "密码错误");
+            return map;
+        }
+        LoginTicket loginTicket = new LoginTicket();
+        loginTicket.setUserId(user.getId());
+        loginTicket.setTicket(CommunityUtil.generateUUID());
+        loginTicket.setStatus(0);
+        loginTicket.setExpired(new Date(System.currentTimeMillis() + expiredTime * 1000));
+        map.put("ticket", loginTicket.getTicket());
+        return map;
+    }
 }

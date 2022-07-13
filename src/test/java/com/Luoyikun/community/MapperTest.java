@@ -1,7 +1,9 @@
 package com.Luoyikun.community;
 
 import com.Luoyikun.community.dao.DiscussPostMapper;
+import com.Luoyikun.community.dao.LoginTicketMapper;
 import com.Luoyikun.community.dao.UserMapper;
+import com.Luoyikun.community.entity.LoginTicket;
 import com.Luoyikun.community.entity.User;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -9,6 +11,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
+
+import java.util.Date;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest
@@ -20,6 +24,9 @@ public class MapperTest {
 
     @Autowired
     private DiscussPostMapper discussPostMapper;
+
+    @Autowired
+    private LoginTicketMapper loginTicketMapper;
 
     @Test
     public void testSelectUser() {
@@ -46,5 +53,27 @@ public class MapperTest {
 
         System.out.println(rows);
         System.out.println(newUser.getId());
+    }
+
+    @Test
+    public void testLoginTicketInsert() {
+        LoginTicket loginTicket = new LoginTicket();
+        loginTicket.setId(11);
+        loginTicket.setUserId(101);
+        loginTicket.setTicket("asdasd");
+        loginTicket.setStatus(0);
+        loginTicket.setExpired(new Date(System.currentTimeMillis() + 1000 * 60 * 10));
+        loginTicketMapper.insertLoginTicket(loginTicket);
+    }
+
+    @Test
+    public void testLoginTicketUpdate() {
+        loginTicketMapper.updateStatus("asdasd", 1);
+    }
+
+    @Test
+    public void testLoginTicketSelect() {
+        LoginTicket loginTicket = loginTicketMapper.selectByTicket("asdasd");
+        System.out.println(loginTicket);
     }
 }

@@ -9,6 +9,7 @@ public class User {
     private String salt;
     private String email;
     private int type;
+    //status 0 为未激活
     private int status;
     private String activationCode;
     private String headerUrl;

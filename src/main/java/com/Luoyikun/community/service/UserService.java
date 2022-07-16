@@ -1,11 +1,10 @@
 package com.Luoyikun.community.service;
 
+import com.Luoyikun.community.dao.LoginTicketMapper;
 import com.Luoyikun.community.dao.UserMapper;
 import com.Luoyikun.community.entity.LoginTicket;
 import com.Luoyikun.community.entity.User;
-import com.Luoyikun.community.util.CommunityConstant;
-import com.Luoyikun.community.util.CommunityUtil;
-import com.Luoyikun.community.util.MailClient;
+import com.Luoyikun.community.util.*;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -29,6 +28,12 @@ public class UserService implements CommunityConstant {
 
     @Autowired
     private TemplateEngine templateEngine;
+
+    @Autowired
+    private LoginTicketMapper loginTicketMapper;
+
+    @Autowired
+    private HostHolder hostHolder;
 
     @Value("http://localhost:8080")
     private String domain;
@@ -135,7 +140,43 @@ public class UserService implements CommunityConstant {
         loginTicket.setTicket(CommunityUtil.generateUUID());
         loginTicket.setStatus(0);
         loginTicket.setExpired(new Date(System.currentTimeMillis() + expiredTime * 1000));
+        loginTicketMapper.insertLoginTicket(loginTicket);
         map.put("ticket", loginTicket.getTicket());
+        return map;
+    }
+
+    public void logOut(String ticket) {
+        loginTicketMapper.updateStatus(ticket,1);
+    }
+
+    public LoginTicket findLoginTicket(String ticket) {
+        return loginTicketMapper.selectByTicket(ticket);
+    }
+
+    public void updateHeaderUrl(int userId, String headerUrl) {
+        userMapper.updateHeader(userId,headerUrl);
+    }
+
+    public Map<String, Object> updatePassword(String oldPassword, String newPassword, String confirm) {
+        Map<String, Object> map = new HashMap<>();
+        User user = hostHolder.getUser();
+        oldPassword = CommunityUtil.md5(oldPassword + user.getSalt()) ;
+        if(StringUtils.isBlank(oldPassword)) {
+            map.put("oldPasswordMsg","请输入原密码");
+        }
+        if(StringUtils.isBlank(newPassword)) {
+            map.put("newPasswordMsg","请输入新密码");
+        }
+        if(StringUtils.isBlank(confirm)) {
+            map.put("confirmMsg","请确认密码");
+        }
+        if(!oldPassword.equals(user.getPassword())) {
+            map.put("oldPasswordMsg", "原密码不正确");
+        }
+        if(!newPassword.equals(confirm)) {
+            map.put("newPasswordMsg", "两次密码不一致");
+        }
+        userMapper.updatePassword(user.getId(), CommunityUtil.md5(newPassword + user.getSalt()));
         return map;
     }
 }

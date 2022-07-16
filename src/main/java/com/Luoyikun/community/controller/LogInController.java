@@ -12,6 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.CookieValue;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -117,9 +118,15 @@ public class LogInController implements CommunityConstant {
             response.addCookie(cookie);
             return "redirect:/index";
         } else {
-            model.addAttribute("usernameMsg", map.get("usernameMsg"));
+            model.addAttribute("usernameMsg", map.get("userNameMsg"));
             model.addAttribute("passwordMsg", map.get("passwordMsg"));
             return "/site/login";
         }
+    }
+
+    @RequestMapping(path = "/logout", method = RequestMethod.GET)
+    public String logout(@CookieValue("ticket") String ticket) {
+        userService.logOut(ticket);
+        return "redirect:login";
     }
 }

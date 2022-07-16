@@ -5,6 +5,7 @@ import com.Luoyikun.community.dao.LoginTicketMapper;
 import com.Luoyikun.community.dao.UserMapper;
 import com.Luoyikun.community.entity.LoginTicket;
 import com.Luoyikun.community.entity.User;
+import com.Luoyikun.community.util.CommunityUtil;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -75,5 +76,13 @@ public class MapperTest {
     public void testLoginTicketSelect() {
         LoginTicket loginTicket = loginTicketMapper.selectByTicket("asdasd");
         System.out.println(loginTicket);
+    }
+
+    @Test
+    public void PasswordGenerate() {
+        User user = userMapper.selectByName("luoyikun");
+        String salt = user.getSalt();
+        String password = CommunityUtil.md5("321" + salt);
+        System.out.println(password);
     }
 }

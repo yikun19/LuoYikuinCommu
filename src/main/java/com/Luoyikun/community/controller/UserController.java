@@ -1,6 +1,7 @@
 package com.Luoyikun.community.controller;
 
 
+import com.Luoyikun.community.annotation.LoginRequired;
 import com.Luoyikun.community.dao.UserMapper;
 import com.Luoyikun.community.entity.User;
 import com.Luoyikun.community.service.UserService;
@@ -43,11 +44,13 @@ public class UserController {
     @Autowired
     private UserService userService;
 
+    @LoginRequired
     @RequestMapping(path = "/setting" ,method = RequestMethod.GET)
     public String UserSetting() {
         return "site/setting";
     }
 
+    @LoginRequired
     @RequestMapping(path = "/upload", method = RequestMethod.POST)
     public String uploadHeader(MultipartFile headerImage, Model model) {
         if(headerImage == null) {
@@ -97,6 +100,7 @@ public class UserController {
         }
     }
 
+    @LoginRequired
     @RequestMapping(path = "/updatePassword", method = RequestMethod.POST)
     public String updatePassword(String oldPassword, String newPassword, String confirm, Model model) {
         Map<String, Object> map = userService.updatePassword(oldPassword, newPassword, confirm);

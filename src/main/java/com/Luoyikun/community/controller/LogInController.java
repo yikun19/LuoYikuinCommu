@@ -1,6 +1,7 @@
 package com.Luoyikun.community.controller;
 
 
+import com.Luoyikun.community.annotation.LoginRequired;
 import com.Luoyikun.community.entity.User;
 import com.Luoyikun.community.service.UserService;
 import com.Luoyikun.community.util.CommunityConstant;
@@ -124,6 +125,7 @@ public class LogInController implements CommunityConstant {
         }
     }
 
+    @LoginRequired
     @RequestMapping(path = "/logout", method = RequestMethod.GET)
     public String logout(@CookieValue("ticket") String ticket) {
         userService.logOut(ticket);

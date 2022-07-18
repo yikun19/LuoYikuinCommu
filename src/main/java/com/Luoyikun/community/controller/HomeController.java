@@ -28,10 +28,10 @@ public class HomeController {
     @RequestMapping(path = "/index", method = RequestMethod.GET)
     public String getIndexPage(Model model, Page page) {
 
-        page.setRows(discussPostService.findDiscussPostRows(138));
+        page.setRows(discussPostService.findDiscussPostRows(111));
         page.setPath("/index");
 
-        List<DiscussPost> list = discussPostService.findDiscussPosts(138, page.getOffset(), page.getLimit());
+        List<DiscussPost> list = discussPostService.findDiscussPosts(111, page.getOffset(), page.getLimit());
         List<Map<String, Object>> discussPosts = new ArrayList<>();
         if(list != null) {
             for(DiscussPost discussPost : list) {

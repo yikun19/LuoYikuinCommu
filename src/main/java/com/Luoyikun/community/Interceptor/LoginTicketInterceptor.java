@@ -41,6 +41,7 @@ public class LoginTicketInterceptor implements HandlerInterceptor {
     }
 
     @Override
+    //Controller方法处理完之后，DispatcherServlet进行视图的渲染之前
     public void postHandle(HttpServletRequest request, HttpServletResponse response, Object handler, ModelAndView modelAndView) throws Exception {
         User user = hostHolder.getUser();
         if(user != null && modelAndView != null) {
@@ -49,6 +50,7 @@ public class LoginTicketInterceptor implements HandlerInterceptor {
     }
 
     @Override
+    //DispatcherServlet进行视图的渲染之后
     public void afterCompletion(HttpServletRequest request, HttpServletResponse response, Object handler, Exception ex) throws Exception {
         hostHolder.clear();
     }

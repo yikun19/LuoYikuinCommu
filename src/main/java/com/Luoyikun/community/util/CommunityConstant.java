@@ -28,8 +28,11 @@ public interface CommunityConstant {
     int REMEMBER_EXPIRED_SECONDS = 3600 * 24 * 100;
 
     /**
-     *
+     *评论类型：
      */
+
+    //对帖子的评论
     int ENTITY_TYPE_POST = 1;
+    //对于评论的评论
     int ENTITY_TYPE_COMMENT = 2;
 }

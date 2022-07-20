@@ -31,8 +31,11 @@ public interface CommunityConstant {
      *评论类型：
      */
 
-    //对帖子的评论
+    //帖子
     int ENTITY_TYPE_POST = 1;
-    //对于评论的评论
+    //评论
     int ENTITY_TYPE_COMMENT = 2;
+    //回复
+    int ENTITY_TYPE_RESPONSE = 3;
+
 }

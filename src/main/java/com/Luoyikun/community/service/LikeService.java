@@ -60,7 +60,7 @@ public class LikeService {
     //查询某个用户所获得的赞的数量
     public int findUserLikeCount(int userId) {
         String userLikeKey = RedisKeyUtil.getUserLikeKey(userId);
-        Integer count = (Integer) redisTemplate.opsForValue().get(userId);
+        Integer count = (Integer) redisTemplate.opsForValue().get(userLikeKey);
         return count == null ? 0 : count.intValue();
     }
 }

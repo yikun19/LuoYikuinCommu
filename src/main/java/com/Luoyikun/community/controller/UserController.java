@@ -3,9 +3,13 @@ package com.Luoyikun.community.controller;
 
 import com.Luoyikun.community.annotation.LoginRequired;
 import com.Luoyikun.community.dao.UserMapper;
+import com.Luoyikun.community.entity.DiscussPost;
+import com.Luoyikun.community.entity.Page;
 import com.Luoyikun.community.entity.User;
+import com.Luoyikun.community.service.DiscussPostService;
 import com.Luoyikun.community.service.LikeService;
 import com.Luoyikun.community.service.UserService;
+import com.Luoyikun.community.util.CommunityConstant;
 import com.Luoyikun.community.util.CommunityUtil;
 import com.Luoyikun.community.util.HostHolder;
 import org.apache.commons.lang3.StringUtils;
@@ -22,11 +26,14 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletResponse;
 import java.io.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 @Controller
 @RequestMapping("/user")
-public class UserController {
+public class UserController implements CommunityConstant {
 
     private static final Logger logger = LoggerFactory.getLogger(UserController.class);
 
@@ -47,6 +54,9 @@ public class UserController {
 
     @Autowired
     private LikeService likeService;
+
+    @Autowired
+    private DiscussPostService discussPostService;
 
     @LoginRequired
     @RequestMapping(path = "/setting" ,method = RequestMethod.GET)
@@ -126,6 +136,28 @@ public class UserController {
         }
         int likeCount = likeService.findUserLikeCount(userId);
         model.addAttribute("likeCount", likeCount);
+        model.addAttribute("user",user);
         return "/site/profile";
+    }
+
+    @RequestMapping(path="/profile/my-post", method = RequestMethod.GET)
+    public String getMyPost(Model model, Page page) {
+        User user = hostHolder.getUser();
+        page.setLimit(5);
+        page.setRows(discussPostService.findDiscussPostRows(user.getId()));
+        page.setPath("/user/profile/my-post");
+        List<DiscussPost> discussPosts = discussPostService.findDiscussPosts(user.getId(), page.getOffset(),page.getLimit());
+        List<Map<String, Object>> postVoList = new ArrayList<>();
+        for(DiscussPost discussPost : discussPosts) {
+            Map<String, Object> map = new HashMap<>();
+            map.put("post", discussPost);
+            long likeCount = likeService.findEntityLikeCount(ENTITY_TYPE_POST, discussPost.getId());
+            map.put("likeCount", likeCount);
+            postVoList.add(map);
+        }
+        int postCount = discussPostService.findDiscussPostRows(user.getId());
+        model.addAttribute("postCount", postCount);
+        model.addAttribute("postVoList", postVoList);
+        return "/site/my-post";
     }
 }

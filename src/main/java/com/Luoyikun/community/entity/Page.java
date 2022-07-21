@@ -11,6 +11,7 @@ public class Page {
     // 查询路径(用于复用分页链接)
     private String path;
 
+
     public int getCurrent() {
         return current;
     }

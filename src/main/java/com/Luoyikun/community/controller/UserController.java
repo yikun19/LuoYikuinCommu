@@ -4,6 +4,7 @@ package com.Luoyikun.community.controller;
 import com.Luoyikun.community.annotation.LoginRequired;
 import com.Luoyikun.community.dao.UserMapper;
 import com.Luoyikun.community.entity.User;
+import com.Luoyikun.community.service.LikeService;
 import com.Luoyikun.community.service.UserService;
 import com.Luoyikun.community.util.CommunityUtil;
 import com.Luoyikun.community.util.HostHolder;
@@ -43,6 +44,9 @@ public class UserController {
 
     @Autowired
     private UserService userService;
+
+    @Autowired
+    private LikeService likeService;
 
     @LoginRequired
     @RequestMapping(path = "/setting" ,method = RequestMethod.GET)
@@ -112,5 +116,16 @@ public class UserController {
             model.addAttribute("confirmMsg", map.get("confirmMsg"));
             return "/site/setting";
         }
+    }
+
+    @RequestMapping(path="/profile/{userId}", method = RequestMethod.GET)
+    public String getUserProfile(@PathVariable("userId") int userId, Model model) {
+        User user = userService.findUserById(userId);
+        if(user == null) {
+            throw new RuntimeException("该用户不存在！");
+        }
+        int likeCount = likeService.findUserLikeCount(userId);
+        model.addAttribute("likeCount", likeCount);
+        return "/site/profile";
     }
 }

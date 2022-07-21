@@ -19,16 +19,29 @@ public class LikeService {
     //entityType 点赞的实体对象的类型（帖子、评论、回复）
     //entityId 实体对象的id
     //entityUserId 实体的创建者的id
-    public void like(int userId, int entityType, int entityId) {
-        String entityLikeKey = RedisKeyUtil.getEntityLikeKey(entityType,entityId);
-        //判断是否点过赞了
-        boolean isMemeber = redisTemplate.opsForSet().isMember(entityLikeKey, userId);
-        //如果点过赞那么就取消点赞，否则就点赞
-        if(isMemeber) {
-            redisTemplate.opsForSet().remove(entityLikeKey,userId);
-        } else {
-            redisTemplate.opsForSet().add(entityLikeKey,userId);
-        }
+    public void like(int userId, int entityType, int entityId, int entityUserId) {
+
+        redisTemplate.execute(new SessionCallback() {
+            @Override
+            public Object execute(RedisOperations operations) throws DataAccessException {
+                String entityLikeKey = RedisKeyUtil.getEntityLikeKey(entityType,entityId);
+                String userLikeKey = RedisKeyUtil.getUserLikeKey(entityUserId);
+                //判断是否点过赞
+                boolean isMember = operations.opsForSet().isMember(entityLikeKey,userId);
+
+                //开启事务
+                operations.multi();
+                //如果点过赞就取消赞，否则就点赞
+                if(isMember) {
+                    operations.opsForSet().remove(entityLikeKey,userId);
+                    operations.opsForValue().decrement(userLikeKey);
+                } else {
+                    operations.opsForSet().add(entityLikeKey, userId);
+                    operations.opsForValue().increment(userLikeKey);
+                }
+                return operations.exec();
+            }
+        });
     }
 
     //查询某个实体点赞的数量
@@ -42,5 +55,12 @@ public class LikeService {
     public int findEntityLikeStatus(int userId, int entityType, int entityId) {
         String entityLikeKey = RedisKeyUtil.getEntityLikeKey(entityType,entityId);
         return redisTemplate.opsForSet().isMember(entityLikeKey, userId) ? 1 : 0;
+    }
+
+    //查询某个用户所获得的赞的数量
+    public int findUserLikeCount(int userId) {
+        String userLikeKey = RedisKeyUtil.getUserLikeKey(userId);
+        Integer count = (Integer) redisTemplate.opsForValue().get(userId);
+        return count == null ? 0 : count.intValue();
     }
 }
